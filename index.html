@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Live JSX and CSS Compilation</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="./index.js"></script>
+</head>
+
+<body>
+    <h1>Live JSX and CSS Compiler</h1>
+    <div class="container">
+        <div>
+            <textarea id="jsxInput" placeholder="Write your JSX code here...">const App = () => {
+            return <h1>Hello, JSX!</h1>;
+        };</textarea>
+            <pre id="jsxOutput"></pre>
+        </div>
+        <div>
+            <textarea id="cssInput" placeholder="Write your CSS code here...">@import "tailwindcss";
+
+body {
+    color: oklch(70% 0.1 338);
+}</textarea>
+            <pre id="cssOutput"></pre>
+        </div>
+
+        <script type="module">
+            import * as esbuild from 'https://esm.sh/esbuild-wasm';
+            import initLightningCSS, { transform } from 'https://esm.sh/lightningcss-wasm@1.28.2';
+
+            async function initializeCompilers() {
+                // Initialize esbuild
+                await esbuild.initialize({
+                    wasmURL: 'https://esm.sh/esbuild-wasm/esbuild.wasm',
+                });
+
+                // Initialize LightningCSS
+                await initLightningCSS();
+
+                const jsxInput = document.getElementById('jsxInput');
+                const cssInput = document.getElementById('cssInput');
+                const jsxOutput = document.getElementById('jsxOutput');
+                const cssOutput = document.getElementById('cssOutput');
+
+                // Compile JSX code
+                async function compileJSX() {
+                    try {
+                        const result = await esbuild.transform(jsxInput.value, {
+                            loader: 'jsx',
+                            minify: true,
+                        });
+                        jsxOutput.textContent = result.code;
+                    } catch (error) {
+                        jsxOutput.textContent = `Error: ${error.message}`;
+                    }
+                }
+
+                // Compile CSS code
+                async function compileCSS() {
+                    try {
+                        const _css = await window.bundleCSS(cssInput.value ?? '');
+
+                        const cssResult = transform({
+                            filename: 'style.css',
+                            code: new TextEncoder().encode(_css),
+                            minify: false,
+                            targets: {
+                                // Specify browserslist targets to control compatibility
+                                chrome: 90, // Example: Chrome 90+
+                            },
+                            drafts: {
+                                customMedia: true,
+                                nesting: true,
+                                colorSpace: true, // Enable modern color space support
+                            },
+                        });
+                        cssOutput.textContent = new TextDecoder().decode(cssResult.code);
+                    } catch (error) {
+                        cssOutput.textContent = `Error: ${error.message}`;
+                    }
+                }
+
+                // Attach event listeners for real-time updates
+                jsxInput.addEventListener('input', compileJSX);
+                cssInput.addEventListener('input', compileCSS);
+
+                // Compile initially
+                compileJSX();
+                compileCSS();
+            }
+
+            initializeCompilers();
+        </script>
+</body>
+
+</html>
