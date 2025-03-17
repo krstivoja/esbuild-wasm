@@ -1,0 +1,21 @@
+{
+  "name": "esbuild-wasm",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "esbuild": "^0.24.0",
+    "esbuild-plugin-inline-import": "^1.1.0",
+    "esbuild-plugin-polyfill-node": "^0.3.0",
+    "postcss": "^8.4.49",
+    "postcss-import": "^16.1.0",
+    "tailwindcss": "^4.0.0-beta.5"
+  }
+}
